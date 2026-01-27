@@ -98,7 +98,7 @@ def activation_var(label, activations=None):
         neighbor=CatInterval(),
     )
 
-def operations_var(label, size, candidates):
+def operations_var(label, size, candidates, activations=None):
     """operations_var(label, size, candidates)
 
     Creates a `DynamicBlock` repeating `NodeVariable` objects corresponding to the candidates operations for a given DAG.
@@ -136,7 +136,7 @@ def operations_var(label, size, candidates):
                                 candidates,
                                 neighbor=CatHpInterval(neighborhood=0.7)
                             ),
-                        activation_function=activation_var("Activation"), # Default activation functions
+                        activation_function=activation_var("Activation", activations), # Default activation functions
                         neighbor=NodeInterval()
                     ),
                     size,
