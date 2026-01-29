@@ -98,7 +98,7 @@ def activation_var(label, activations=None):
         neighbor=CatInterval(),
     )
 
-def operations_var(label, size, candidates, activations=None):
+def operations_var(label, size, candidates, combiner_features = ['add', 'mul', 'concat', 'sub', 'divide'], activations=None):
     """operations_var(label, size, candidates)
 
     Creates a `DynamicBlock` repeating `NodeVariable` objects corresponding to the candidates operations for a given DAG.
@@ -130,7 +130,7 @@ def operations_var(label, size, candidates, activations=None):
                     label,
                     NodeVariable(
                         label = "Variable",
-                        combiner=CatVar("Combiner", features=['add', 'mul', 'concat'], neighbor=CatInterval()), # Default combiners
+                        combiner=CatVar("Combiner", features=combiner_features, neighbor=CatInterval()), # Default combiners
                         operation=CatVar(
                                 "Candidates",
                                 candidates,

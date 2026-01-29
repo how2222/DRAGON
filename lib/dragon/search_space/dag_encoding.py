@@ -78,7 +78,7 @@ class Node(nn.Module):
     """
     def __init__(self, combiner, operation, hp, activation=nn.Identity(), input_comp="Pad"):
         super(Node, self).__init__()
-        assert combiner in ['add', 'concat', 'mul'], f"Invalid combiner argument, got: {combiner}."
+        assert combiner in ['add', 'concat', 'mul', 'sub', 'divide'], f"Invalid combiner argument, got: {combiner}."
         self.combiner = combiner
         self.name = operation
         self.hp = hp
@@ -127,9 +127,13 @@ class Node(nn.Module):
         # Initialize the operation
         self.operation = self.name(self.input_shape, **self.hp)
         # Initialize the weights
-        for n, p in self.operation.named_parameters():
-                if p.dim() > 1:
-                    nn.init.xavier_uniform_(p)
+        try:
+            for n, p in self.operation.named_parameters():
+                    if p.dim() > 1:
+                        nn.init.xavier_uniform_(p)
+        except Exception as e:
+            logger.error(f"Warning: could not initialize the weights of the operation {self.operation}.\n Exception: {e}")
+            raise e
         # Pass the operation on the device
         if device is not None:
             self.operation = self.operation.to(device)
@@ -153,7 +157,7 @@ class Node(nn.Module):
         -------
             tuple
         """
-        if self.combiner in ["add", "mul"]:
+        if self.combiner in ["add", "mul", "sub", "divide"]:
             if self.input_comp == "Crop":
                 return tuple(np.mean(input_shapes, axis=0).astype(int))
             elif self.input_comp == "Pad":
@@ -183,7 +187,7 @@ class Node(nn.Module):
             `torch.Tensor`
         """
         if isinstance(X, list):
-            assert self.combiner in ['concat', 'add', 'mul'], f"Invalid combiner: {self.combiner}"
+            assert self.combiner in ['concat', 'add', 'mul', 'sub', 'divide'], f"Invalid combiner: {self.combiner}"
             if self.combiner == "concat":
                 X_pad = self.padding(X, start=-2, pad_start=(0,0))
                 X = torch.cat(X_pad, dim=-1)
@@ -197,6 +201,20 @@ class Node(nn.Module):
                 for i in range(1, len(X)):
                      X_mul *= X[i]
                 return X_mul
+            elif self.combiner == "sub":
+                X = self.padding(X)
+                X_sub = X[0]
+                for i in range(1, len(X)):
+                     X_sub -= X[i]
+                return X_sub
+            elif self.combiner == "divide":
+                X = self.padding(X)
+                if len(X) > 2:
+                    raise InvalidArgumentError('Combiner', self.combiner, X)
+                X_div = X[0]
+                for i in range(1, len(X)):
+                     X_div /= (X[i] + 1e-8)
+                return X_div
         else:
             return self.padding(X)
 
