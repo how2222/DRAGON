@@ -209,8 +209,8 @@ class Node(nn.Module):
                 return X_sub
             elif self.combiner == "divide":
                 X = self.padding(X)
-                if len(X) > 2:
-                    raise InvalidArgumentError('Combiner', self.combiner, X)
+                # if len(X) > 2:
+                #     raise InvalidArgumentError('Combiner', self.combiner, X)
                 X_div = X[0]
                 for i in range(1, len(X)):
                      X_div /= (X[i] + 1e-8)

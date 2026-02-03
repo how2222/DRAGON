@@ -81,7 +81,7 @@ class Mutant_UCB(SearchAlgorithm):
     >>> search_algorithm = Mutant_UCB(search_space, save_dir="save/test_mutant", T=20, N=5, K=5, E=0.01, evaluation=loss_function)
     >>> search_algorithm.run()
     """
-    def __init__(self, search_space, T, K, N, E, evaluation, save_dir, models=None, pop_path=None, verbose=False, **args):
+    def __init__(self, search_space, T, K, N, E, evaluation, save_dir, decreasing_E=False, models=None, pop_path=None, verbose=False, **args):
         super(Mutant_UCB, self).__init__(search_space=search_space, 
                                             n_iterations=T, 
                                             init_population_size=K, 
@@ -94,7 +94,9 @@ class Mutant_UCB(SearchAlgorithm):
     
         self.N = N
         self.E = E
+        self.decreasing_E = decreasing_E
         self.sent = {}
+        self.iteration_count = 0
 
 
     def select_next_configurations(self):
@@ -112,8 +114,15 @@ class Mutant_UCB(SearchAlgorithm):
         # Compute ucb loss
         iterated = False
         while not iterated:
+            self.iteration_count += 1
+            if self.decreasing_E:
+                decay_factor = abs(self.n_iterations - self.iteration_count) / self.n_iterations
+            else:
+                decay_factor = 1
+            E_current = self.E * decay_factor
+            print(f"Iteration {self.iteration_count}/{self.n_iterations}, E: {E_current}")
             tries = 0
-            ucb_losses = [self.storage[i]['UCBLoss'] - np.sqrt(self.E/self.storage[i]['N']) for i in self.storage.keys()]
+            ucb_losses = [self.storage[i]['UCBLoss'] - np.sqrt(E_current/self.storage[i]['N']) for i in self.storage.keys()]
             idx = list(self.storage.keys())[np.argmin(ucb_losses)]
             try:
                 # Mutation probability
