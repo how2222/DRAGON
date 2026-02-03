@@ -1,0 +1,18 @@
+digraph best_archi {
+	node [fontname="sans-serif" fontsize=10 nodesep=0.02 ranksep=0.5 shape=box]
+	0 [label="0: Input" color=black fillcolor="#ffa600" shape=box style=filled]
+	1 [label="1: concat | SumFeatures | Identity" color=black fillcolor="#ffa600" shape=box style=filled]
+	2 [label="2: mul | Negate | Identity" color=black fillcolor="#ffa600" shape=box style=filled]
+	3 [label="3: concat | SelectFeatures | [0] | Identity" color=black fillcolor="#ffa600" shape=box style=filled]
+	4 [label="4: concat | SelectFeatures | [1] | Identity" color=black fillcolor="#ffa600" shape=box style=filled]
+	5 [label="5: add | Inverse | Identity" color=black fillcolor="#ffa600" shape=box style=filled]
+	6 [label="6: mul | Identity | Identity" color=black fillcolor="#ffa600" shape=box style=filled]
+	0 -> 1
+	0 -> 2
+	0 -> 3
+	1 -> 6
+	2 -> 4
+	3 -> 5
+	4 -> 5
+	5 -> 6
+}
