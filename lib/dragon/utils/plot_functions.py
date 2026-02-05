@@ -5,7 +5,7 @@ import graphviz
 from sympy import Symbol, Add, Mul, Pow
 from dragon.search_space.dag_encoding import AdjMatrix, SymbolicNode, fill_adj_matrix
 from dragon.search_space.bricks.basics import Identity
-from dragon.search_space.bricks.symbolic_regression import Negate, Inverse, SelectFeatures, ConstantBrick
+from dragon.search_space.bricks.symbolic_regression import Negate, Inverse, SelectFeatures#, ConstantBrick
 import torch.nn as nn
 import numpy as np
 from sympy import Integer, Rational, Float
